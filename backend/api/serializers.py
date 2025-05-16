@@ -9,7 +9,7 @@ from recipes.models import (
     Recipe, Ingredient, RecipeIngredient,
     Favorite, ShoppingCart
 )
-from users.models import User, Subscription
+from users.models import Subscription
 
 User = get_user_model()
 
