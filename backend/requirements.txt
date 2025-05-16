@@ -11,3 +11,4 @@ django-cors-headers == 4.7.0
 django-filter == 25.1
 reportlab == 4.4.0
 weasyprint == 65.1
+flake8
