@@ -1,0 +1,13 @@
+Django>=4.2
+djangorestframework
+gunicorn
+python-dotenv==1.0.0
+psycopg2-binary==2.9.5
+djoser==2.3.1
+djangorestframework == 3.16.0
+pillow == 11.2.1
+drf-extra-fields == 3.7.0
+django-cors-headers == 4.7.0
+django-filter == 25.1
+reportlab == 4.4.0
+weasyprint == 65.1
