@@ -35,6 +35,7 @@ from .serializers import (
 
 User = get_user_model()
 
+
 # ViewSet для отображения списка ингредиентов
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
@@ -47,8 +48,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
         if search_query:
             # Фильтрация по началу или вхождению в имя ингредиента
             queryset = queryset.filter(
-                Q(name__istartswith=search_query) |
-                Q(name__icontains=search_query)
+                Q(name__istartswith=search_query)
+                | Q(name__icontains=search_query)
             ).order_by('name')
         return queryset
 
