@@ -15,7 +15,7 @@
 ### 1. Клонировать репозиторий:
 
 ```bash
-cd foodgram-project/infra
+cd infra
 ```
 2. Создать .env файл
 Создайте файл ../backend/.env со следующим содержимым:
