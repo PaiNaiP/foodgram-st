@@ -1,0 +1,27 @@
+name: Foodgram CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_push_backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Клонирование репозитория
+        uses: actions/checkout@v3
+
+      - name: Логин в Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: painaip
+          password: dckr_pat_ZrGGnvY2YoKkY1Q94MGeLjSq8b8
+
+      - name: Сборка и пуш backend-образа
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: painaip/foodgram-backend:latest
