@@ -7,4 +7,6 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . /app/
 
-CMD ["gunicorn", "foodgram.wsgi:application", "--bind", "0.0.0.0:8000"]
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
