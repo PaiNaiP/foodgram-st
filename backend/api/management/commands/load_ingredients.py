@@ -1,7 +1,6 @@
 import json
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django.conf import settings
 from recipes.models import Ingredient
 
 
@@ -12,9 +11,9 @@ class Command(BaseCommand):
         try:
             # Формируем правильный путь к файлу
             file_path = '/mnt/data/ingredients.json'
-            
+
             self.stdout.write(f"Пытаемся загрузить данные из: {file_path}")
-            
+
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
 
@@ -43,9 +42,8 @@ class Command(BaseCommand):
         except FileNotFoundError:
             self.stdout.write(
                 self.style.ERROR(f'Файл не найден по пути: {file_path}\n'
-                               f'Проверьте, что файл ingredients.json находится в директории data/')
+                                 f'Проверьте, что файл ingredients.json находится в директории data/')
             )
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Ошибка: {str(e)}'))
             raise
-        
