@@ -14,7 +14,7 @@
 
 ### 1. Клонировать репозиторий:
 ```bash
-https://github.com/PaiNaiP/foodgram-st.git
+git clone https://github.com/PaiNaiP/foodgram-st.git
 ```
 2. Создать .env файл
 Создайте файл ../backend/.env со следующим содержимым:
