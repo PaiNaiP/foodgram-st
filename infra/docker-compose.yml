@@ -1,13 +1,11 @@
 version: '3.3'
 services:
+
   frontend:
     container_name: foodgram-front
     build: ../frontend
     volumes:
       - ../frontend/:/app/result_build/
-    networks:
-      - foodgram-network
-
   nginx:
     container_name: foodgram-proxy
     image: nginx:1.25.4-alpine
@@ -19,48 +17,29 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - media_volume:/app/media/
       - static_volume:/app/static/
-    depends_on:
-      - backend
-    networks:
-      - foodgram-network
-
   backend:
     container_name: foodgram-back
     build:
       context: ../backend
-    command: gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000 
+    command: gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - ../data/:/app/data/
-      - media_volume:/app/backend/media/
+      - ../backend/:/app/
+      - media_volume:/app/media/
+      - static_volume:/app/static/
     ports:
       - "8000:8000"
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     env_file:
       - ../backend/.env
-    networks:
-      - foodgram-network
-
   db:
     image: postgres:14.0-alpine  
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ../backend/.env
-    networks:
-      - foodgram-network
 
 volumes:
   postgres_data:
   media_volume:
   static_volume:
-
-networks:
-  foodgram-network:
-    driver: bridge
