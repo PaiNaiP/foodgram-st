@@ -13,9 +13,8 @@
 ## Как запустить проект локально в Docker
 
 ### 1. Клонировать репозиторий:
-
 ```bash
-cd infra
+https://github.com/PaiNaiP/foodgram-st.git
 ```
 2. Создать .env файл
 Создайте файл ../backend/.env со следующим содержимым:
@@ -31,21 +30,23 @@ DB_PORT=5432
 DEBUG=0
 ```
 3. Собрать и запустить контейнеры:
+```bash
+cd infra
+```
 ```
 docker compose up --build
 ```
+Да, он грузится долго, потому что выполняет несколько команд одновременно, пожалуйста дождитесь конца
 Проект будет доступен по адресу:
 http://localhost/
 
 Команды внутри контейнера backend
-Применить миграции:
-```
-docker-compose exec backend python manage.py migrate
-```
-Создать суперпользователя:
+Создать суперпользователя для админки:
 ```
 docker-compose exec backend python manage.py createsuperuser
 ```
+Админка работает на http://localhost:8000/admin
+
 Тестирование API
 Коллекция Postman
 Файл с готовыми запросами находится в папке:
@@ -55,11 +56,6 @@ postman_collection/foodgram_collection.json
 Не забудьте указать переменную base_url, например:
 http://localhost или адрес вашего сервера.
 
-CI/CD и Docker Hub
-Проект автоматически собирается и выкладывается на Docker Hub при пуше в ветку main.
-Также запускается деплой на сервер через GitHub Actions.
-
-Админка работает на http://localhost:8000/admin
 
 Автор проекта: Батыгина Екатерина Ильинична 
 
