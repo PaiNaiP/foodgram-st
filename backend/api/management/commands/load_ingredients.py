@@ -1,25 +1,30 @@
 import json
+import os
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.conf import settings
 from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
+    help = 'Загрузка ингредиентов из JSON файла'
+
     def handle(self, *args, **options):
-        """
-        Основной метод команды для загрузки ингредиентов из JSON файла.
-        Выполняет загрузку в рамках атомарной транзакции.
-        """
         try:
-            # Открываем файл с данными ингредиентов
-            with open('/app/data/ingredients.json', 'r', encoding='utf-8') as f:
+            # Получаем базовую директорию проекта
+            base_dir = settings.BASE_DIR
+            # Формируем правильный путь к файлу
+            file_path = '/mnt/data/ingredients.json'
+            
+            self.stdout.write(f"Пытаемся загрузить данные из: {file_path}")
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
 
                 with transaction.atomic():
                     created_count = 0
                     existing_count = 0
 
-                    # Обрабатываем каждый элемент из JSON
                     for item in data:
                         obj, created = Ingredient.objects.get_or_create(
                             name=item['name'],
@@ -30,16 +35,19 @@ class Command(BaseCommand):
                         else:
                             existing_count += 1
 
-                    # Выводим результат загрузки
                     self.stdout.write(
                         self.style.SUCCESS(
-                            f'Результат загрузки:\n'
+                            f'Успешно загружено:\n'
                             f'Создано новых: {created_count}\n'
                             f'Уже существовало: {existing_count}\n'
                             f'Всего в базе: {Ingredient.objects.count()}'
                         )
                     )
+        except FileNotFoundError:
+            self.stdout.write(
+                self.style.ERROR(f'Файл не найден по пути: {file_path}\n'
+                               f'Проверьте, что файл ingredients.json находится в директории data/')
+            )
         except Exception as e:
-            # В случае ошибки выводим сообщение и пробрасываем исключение
             self.stdout.write(self.style.ERROR(f'Ошибка: {str(e)}'))
-            raise e
+            raise
