@@ -1,13 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
-echo "Waiting for db to be ready..."
-sleep 5
-
-echo "Applying migrations..."
+# Применяем миграции
 python manage.py migrate
 
-echo "Loading ingredients..."
+# Загружаем ингредиенты 
 python manage.py load_ingredients
 
-echo "Starting server..."
-gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000 
+# Запускаем основной процесс (Gunicorn)
+exec "$@"
