@@ -31,4 +31,3 @@ class RecipeFilter(filters.FilterSet):
         if value and not user.is_authenticated:
             return queryset.none()
         return queryset
-        

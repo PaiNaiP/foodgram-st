@@ -12,4 +12,4 @@ def validate_username_chars(value):
         invalid_chars = set(re.findall(r'[^\w.@+-]', value))
         raise ValidationError(
             f'Имя пользователя содержит недопустимые символы: {" ".join(invalid_chars)}'
-        ) 
+        )

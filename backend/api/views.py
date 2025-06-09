@@ -1,10 +1,8 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models import Q, Sum
-from django.http import HttpResponse, FileResponse
+from django.db.models import Sum
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.pagination import PageNumberPagination
 from django.urls import reverse
 from django.utils import timezone
 import io
@@ -13,9 +11,8 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView, View
+from rest_framework.views import View
 
-from djoser.serializers import SetPasswordSerializer, UserSerializer as DjoserUserSerializer
 from djoser.views import UserViewSet as DjoserUserViewSet
 
 from recipes.models import (
@@ -34,7 +31,6 @@ from .serializers import (
     IngredientSerializer,
     RecipeSerializer,
     ShortRecipeSerializer,
-    SubscriptionCreateSerializer,
     AvatarSerializer,
     RecipeCreateSerializer,
     UserSerializer,
@@ -103,7 +99,7 @@ class UserViewSet(DjoserUserViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
         user.avatar.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -119,7 +115,7 @@ class UserViewSet(DjoserUserViewSet):
                     {'errors': 'Нельзя подписаться на самого себя.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             subscription, created = Subscription.objects.get_or_create(
                 user=user, author=author
             )
@@ -133,7 +129,7 @@ class UserViewSet(DjoserUserViewSet):
             recipes_limit_str = request.query_params.get('recipes_limit')
             if recipes_limit_str and recipes_limit_str.isdigit():
                 context['recipes_limit'] = int(recipes_limit_str)
-            
+
             serializer = AuthorWithRecipesSerializer(author, context=context)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -160,11 +156,11 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         context = {'request': request}
-        
+
         recipes_limit_str = request.query_params.get('recipes_limit')
         if recipes_limit_str and recipes_limit_str.isdigit():
             context['recipes_limit'] = int(recipes_limit_str)
-        
+
         if page is not None:
             serializer = self.get_serializer(page, many=True, context=context)
             return self.get_paginated_response(serializer.data)
@@ -205,7 +201,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 )
             serializer = ShortRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+
         instance = model.objects.filter(user=user, recipe=recipe).first()
         if not instance:
             return Response(
@@ -230,8 +226,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
     @action(
-        detail=True, 
-        methods=['get'], 
+        detail=True,
+        methods=['get'],
         permission_classes=[permissions.AllowAny],
         url_path='get-link',
         url_name='get-link'
@@ -243,7 +239,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             path = reverse('recipe-short-link', kwargs={'recipe_id': recipe.id})
         else:
             path = '/'
-        
+
         absolute_url = request.build_absolute_uri(path)
         return Response({'short-link': absolute_url}, status=status.HTTP_200_OK)
 
@@ -274,19 +270,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
             f'Дата: {timezone.now().strftime("%d %B %Y")}',
             '',
             'Продукты к покупке:',
-            *[f'{i}. {ing["ingredient__name"].capitalize()} ({ing["ingredient__measurement_unit"]}) — {ing["total_amount"]}'
+            *[
+                f'{i}. {ing["ingredient__name"].capitalize()} '
+                f'({ing["ingredient__measurement_unit"]}) — {ing["total_amount"]}'
               for i, ing in enumerate(ingredients, 1)],
             '',
             'Из рецептов:',
             *[f'- {recipe.name} (автор: {recipe.author.get_full_name() or recipe.author.username})'
               for recipe in recipes],
         ]
-        
+
         txt_content = '\n'.join(report_lines)
         filename = f'shopping_list_{user.username}.txt'
-        
+
         file_like_object = io.BytesIO(txt_content.encode('utf-8'))
-        
+
         return FileResponse(
             file_like_object,
             as_attachment=True,

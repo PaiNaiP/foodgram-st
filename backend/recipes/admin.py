@@ -120,7 +120,14 @@ class FoodgramUserAdmin(UserAdmin):
         'get_subscriber_count',
     )
     search_fields = ('username', 'email')
-    list_filter = ('is_staff', 'is_superuser', 'is_active', HasRecipesFilter, HasSubscriptionsFilter, HasSubscribersFilter)
+    list_filter = (
+        'is_staff',
+        'is_superuser',
+        'is_active',
+        HasRecipesFilter,
+        HasSubscriptionsFilter,
+        HasSubscribersFilter,
+    )
     ordering = ('username',)
     readonly_fields = ('get_avatar',)
 
@@ -209,4 +216,4 @@ class ShoppingCartAdmin(admin.ModelAdmin):
 @admin.register(RecipeIngredient)
 class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'ingredient', 'amount')
-    search_fields = ('recipe__name', 'ingredient__name') 
+    search_fields = ('recipe__name', 'ingredient__name')

@@ -1,10 +1,7 @@
-import base64
-import uuid
-
 from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile
+User = get_user_model()
 from rest_framework import serializers
-from djoser.serializers import UserCreateSerializer, UserSerializer as DjoserUserSerializer
+from djoser.serializers import UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import viewsets
 from rest_framework import permissions
@@ -31,9 +28,9 @@ class UserSerializer(DjoserUserSerializer):
         """Возвращает флаг подписки текущего пользователя на автора."""
         request = self.context.get('request')
         return (
-            request and
-            request.user.is_authenticated and
-            Subscription.objects.filter(user=request.user, author=author).exists()
+            request
+            and request.user.is_authenticated
+            and Subscription.objects.filter(user=request.user, author=author).exists()
         )
 
 
@@ -99,18 +96,18 @@ class RecipeSerializer(serializers.ModelSerializer):
         """Возвращает флаг добавления рецепта в избранное."""
         request = self.context.get('request')
         return (
-            request and
-            request.user.is_authenticated and
-            Favorite.objects.filter(user=request.user, recipe=recipe).exists()
+            request
+            and request.user.is_authenticated
+            and Favorite.objects.filter(user=request.user, recipe=recipe).exists()
         )
 
     def get_is_in_shopping_cart(self, recipe):
         """Возвращает флаг добавления рецепта в корзину."""
         request = self.context.get('request')
         return (
-            request and
-            request.user.is_authenticated and
-            ShoppingCart.objects.filter(user=request.user, recipe=recipe).exists()
+            request
+            and request.user.is_authenticated
+            and ShoppingCart.objects.filter(user=request.user, recipe=recipe).exists()
         )
 
     def create_ingredients(self, recipe, ingredients_data):
@@ -161,7 +158,7 @@ class AuthorWithRecipesSerializer(UserSerializer):
         queryset = author.recipes.all()
         if limit is not None:
             queryset = queryset[:limit]
-            
+
         return ShortRecipeSerializer(
             queryset, many=True, context={'request': request}
         ).data
@@ -213,7 +210,7 @@ class RecipeCreateSerializer(RecipeSerializer):
             raise serializers.ValidationError(
                 'Ингредиенты не должны повторяться.'
             )
-            
+
         return value
 
     def create(self, validated_data):
@@ -262,9 +259,6 @@ class RecipeCreateSerializer(RecipeSerializer):
             instance,
             context={'request': self.context.get('request')}
         ).data
-
-
-User = get_user_model()
 
 
 class AvatarSerializer(serializers.ModelSerializer):
