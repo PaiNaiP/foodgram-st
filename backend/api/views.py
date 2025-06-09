@@ -273,7 +273,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             *[
                 f'{i}. {ing["ingredient__name"].capitalize()} '
                 f'({ing["ingredient__measurement_unit"]}) — {ing["total_amount"]}'
-              for i, ing in enumerate(ingredients, 1)],
+                for i, ing in enumerate(ingredients, 1)],
             '',
             'Из рецептов:',
             *[f'- {recipe.name} (автор: {recipe.author.get_full_name() or recipe.author.username})'
