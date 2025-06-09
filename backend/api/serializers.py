@@ -7,7 +7,7 @@ from rest_framework import permissions
 
 from recipes.models import (
     Recipe, Ingredient, RecipeIngredient,
-    Favorite, ShoppingCart, Subscription, User
+    Favorite, ShoppingCart, Subscription
 )
 
 User = get_user_model()
