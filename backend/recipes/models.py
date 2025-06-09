@@ -1,10 +1,78 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
-import django_filters
-from django_filters import rest_framework as filters
+from .validators import validate_username_chars
 
-User = get_user_model()
+
+class User(AbstractUser):
+    """
+    Кастомная модель пользователя с электронной почтой как уникальным идентификатором,
+    а также полями для подписки и аватара.
+    """
+    username = models.CharField(
+        "Имя пользователя",
+        max_length=150,
+        unique=True,
+        validators=[validate_username_chars],
+        help_text="Обязательное поле. Не более 150 символов. Только буквы, цифры и @/./+/-/_.",
+        error_messages={
+            'unique': "Пользователь с таким именем уже существует.",
+        },
+    )
+    email = models.EmailField(
+        "Email",
+        unique=True,
+        max_length=254
+    )
+    first_name = models.CharField("Имя", max_length=150)
+    last_name = models.CharField("Фамилия", max_length=150)
+    is_subscribed = models.BooleanField(
+        default=False,
+        verbose_name='Подписка'
+    )
+    avatar = models.ImageField(
+        upload_to='avatars/',
+        null=True,
+        blank=True,
+        verbose_name='Аватар'
+    )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ('username',)
+
+    def __str__(self):
+        return self.email
+
+
+class Subscription(models.Model):
+    """
+    Модель подписки пользователя на автора рецептов.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscriptions'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='authors'
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'author'], name='unique_subscription')
+        ]
+
+    def __str__(self):
+        return f"{self.user} подписан на {self.author}"
 
 
 class Ingredient(models.Model):
@@ -13,10 +81,12 @@ class Ingredient(models.Model):
     measurement_unit = models.CharField(max_length=200)
 
     class Meta:
-        ordering = ['name']
-        verbose_name = 'Ингредиент'
-        verbose_name_plural = 'Ингредиенты'
-        unique_together = ('name', 'measurement_unit')
+        ordering = ('name',)
+        verbose_name = 'Продукт'
+        verbose_name_plural = 'Продукты'
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'measurement_unit'], name='unique_ingredient')
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.measurement_unit})"
@@ -27,22 +97,26 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='recipes'
+        related_name='recipes',
+        verbose_name='Автор'
     )
-    name = models.CharField(max_length=200)
-    image = models.ImageField(upload_to='recipes/images/')
-    text = models.TextField()
+    name = models.CharField("Название", max_length=256)
+    image = models.ImageField("Картинка", upload_to='recipes/images/')
+    text = models.TextField("Описание")
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='RecipeIngredient'
+        through='RecipeIngredient',
+        verbose_name='Ингредиенты',
+        related_name='recipes'
     )
     cooking_time = models.PositiveIntegerField(
+        "Время приготовления (в минутах)",
         validators=[MinValueValidator(1)]
     )
-    pub_date = models.DateTimeField(auto_now_add=True)
+    pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
@@ -57,15 +131,17 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         related_name='ingredient_amounts'
     )
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, related_name='recipe_ingredients')
     amount = models.PositiveIntegerField(
         validators=[MinValueValidator(1)]
     )
 
     class Meta:
-        verbose_name = 'Ингредиент в рецепте'
-        verbose_name_plural = 'Ингредиенты в рецептах'
-        unique_together = ('recipe', 'ingredient')
+        verbose_name = 'Продукт в рецепте'
+        verbose_name_plural = 'Продукты в рецептах'
+        constraints = [
+            models.UniqueConstraint(fields=['recipe', 'ingredient'], name='unique_recipe_ingredient')
+        ]
 
 
 class Favorite(models.Model):
@@ -73,46 +149,48 @@ class Favorite(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favorites'
+        related_name='favorites',
+        verbose_name='Пользователь'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorited_by'
+        related_name='favorited',
+        verbose_name='Рецепт'
     )
 
     class Meta:
-        unique_together = ('user', 'recipe')
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'], name='unique_favorite')
+        ]
 
     def __str__(self):
         return f"{self.user} добавил {self.recipe} в избранное"
 
 
-class RecipeFilter(django_filters.FilterSet):
-    """Фильтр для рецептов по наличию в списке покупок."""
-    is_in_shopping_cart = filters.BooleanFilter(method='filter_shopping_cart')
-
-    class Meta:
-        model = Recipe
-        fields = ['is_in_shopping_cart']
-
-    def filter_shopping_cart(self, queryset, name, value):
-        user = self.request.user
-        if value and not user.is_anonymous:
-            return queryset.filter(shopping_cart__user=user)
-        return queryset
-
-
 class ShoppingCart(models.Model):
     """Модель списка покупок пользователя."""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        verbose_name='Пользователь'
+    )
     recipe = models.ForeignKey(
         Recipe,
+        on_delete=models.CASCADE,
         related_name='shopping_cart',
-        on_delete=models.CASCADE
+        verbose_name='Рецепт'
     )
 
     class Meta:
-        unique_together = ('user', 'recipe')
+        verbose_name = 'Корзина покупок'
+        verbose_name_plural = 'Корзины покупок'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'], name='unique_shopping_cart')
+        ]
+
+    def __str__(self):
+        return f'{self.user} добавил {self.recipe} в корзину'

@@ -3,21 +3,28 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (
     IngredientViewSet,
-    UserViewSet,
     RecipeViewSet,
-    RecipeLinkView,
-    DownloadShoppingCartView,
+    UserViewSet,
+    SubscriptionViewSet,
+    RecipeShortLinkRedirectView,
 )
 
 router = DefaultRouter()
 router.register(r'ingredients', IngredientViewSet, basename='ingredients')
-router.register(r'users', UserViewSet, basename='users')
 router.register(r'recipes', RecipeViewSet, basename='recipes')
+router.register(r'users', UserViewSet, basename='users')
 
 urlpatterns = [
-    path('recipes/download_shopping_cart/', DownloadShoppingCartView.as_view()),
+    path(
+        'users/subscriptions/',
+        SubscriptionViewSet.as_view({'get': 'list'}),
+        name='subscriptions-list'
+    ),
+    path(
+        's/<int:recipe_id>/',
+        RecipeShortLinkRedirectView.as_view(),
+        name='recipe-short-link'
+    ),
     path('', include(router.urls)),
-    path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
-    path('recipes/<int:id>/get-link/', RecipeLinkView.as_view(), name='recipe-get-link'),
 ]
