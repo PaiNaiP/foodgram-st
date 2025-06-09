@@ -94,6 +94,7 @@ docker compose exec backend python manage.py createsuperuser
 Для тестирования API можно использовать предоставленную коллекцию Postman.
 - **Файл коллекции:** `postman_collection/foodgram_collection.json`
 - Импортируйте коллекцию в Postman и используйте ее для отправки запросов к вашему локально запущенному сервису.
+
 Весь код выполнен так, чтобы все тесты выполнялись, сейчас именно так.
 ---
 
