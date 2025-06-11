@@ -6,9 +6,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse
 from django.utils import timezone
 
-from django.urls import reverse
-from django.utils import timezone
-
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
