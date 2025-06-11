@@ -5,12 +5,10 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse
 from django.utils import timezone
-<<<<<<< HEAD
+
 from django.urls import reverse
 from django.utils import timezone
 
-=======
->>>>>>> 5763f73e25235fc328098783614c805d424f073e
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
