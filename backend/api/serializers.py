@@ -5,7 +5,7 @@ from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (
     Recipe, Ingredient, RecipeIngredient,
-    Favorite, ShoppingCart, Subscription
+    Favorite, ShoppingCart
 )
 
 User = get_user_model()
