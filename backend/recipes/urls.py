@@ -1,6 +1,6 @@
 from django.urls import path
 
-from foodgram.views import recipe_short_link_redirect
+from api.views import recipe_short_link_redirect
 
 urlpatterns = [
     path(

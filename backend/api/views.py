@@ -5,9 +5,11 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse
 from django.utils import timezone
+from django.urls import reverse
+from django.utils import timezone
 
 from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -269,3 +271,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             as_attachment=True,
             filename='shopping_list.txt'
         )
+
+
+@api_view(['GET'])
+def recipe_short_link_redirect(request, recipe_id):
+    """Осуществляет редирект с короткой ссылки на полную страницу рецепта."""
+    get_object_or_404(Recipe, id=recipe_id)
+    # Я предполагаю, что фронтенд обрабатывает /recipes/<id>/
+    return redirect(f'/recipes/{recipe_id}/', permanent=True)
