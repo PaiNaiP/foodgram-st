@@ -10,14 +10,11 @@ class User(AbstractUser):
     а также полями для подписки и аватара.
     """
     username = models.CharField(
-        "Имя пользователя",
+        "Уникальный никнейм пользователя",
         max_length=150,
         unique=True,
         validators=[validate_username_chars],
-        help_text="Обязательное поле. Не более 150 символов. Только буквы, цифры и @/./+/-/_.",
-        error_messages={
-            'unique': "Пользователь с таким именем уже существует.",
-        },
+        help_text="Обязательное поле. Только буквы, цифры и @/./+/-/_.",
     )
     email = models.EmailField(
         "Email",
@@ -26,10 +23,6 @@ class User(AbstractUser):
     )
     first_name = models.CharField("Имя", max_length=150)
     last_name = models.CharField("Фамилия", max_length=150)
-    is_subscribed = models.BooleanField(
-        default=False,
-        verbose_name='Подписка'
-    )
     avatar = models.ImageField(
         upload_to='avatars/',
         null=True,
@@ -77,8 +70,8 @@ class Subscription(models.Model):
 
 class Ingredient(models.Model):
     """Модель ингредиента с названием и единицей измерения."""
-    name = models.CharField(max_length=200)
-    measurement_unit = models.CharField(max_length=200)
+    name = models.CharField(max_length=128)
+    measurement_unit = models.CharField(max_length=64)
 
     class Meta:
         ordering = ('name',)
@@ -175,13 +168,13 @@ class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
+        related_name='shopping_carts',
         verbose_name='Пользователь'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
+        related_name='shopping_carts',
         verbose_name='Рецепт'
     )
 

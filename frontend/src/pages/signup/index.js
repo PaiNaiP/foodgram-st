@@ -59,7 +59,7 @@ const SignUp = ({ onSignUp, submitError, setSubmitError }) => {
             onChange={onChange}
           />
           <Input
-            placeholder="Имя пользователя"
+            placeholder="Уникальный никнейм пользователя"
             name="username"
             required
             isAuth={true}

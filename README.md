@@ -87,7 +87,7 @@ docker compose exec backend python manage.py createsuperuser
 
 - **Сайт:** `http://localhost/`
 - **Панель администратора:** `http://localhost:8000/admin/`
-- **Документация API (ReDoc):** `http://localhost/api/docs/`
+- **[Документация API (ReDoc)](http://localhost/api/docs/)**
 
 ### Тестирование API
 
@@ -99,7 +99,8 @@ docker compose exec backend python manage.py createsuperuser
 
 ## Автор проекта
 
-- **Батыгина Екатерина Ильинична**
+- **[Батыгина Екатерина Ильинична](https://github.com/PaiNaiP)**
+- **Email:** [RedBlueShip@yandex.ru](mailto:RedBlueShip@yandex.ru)
 
 Хорошей вам проверки!
 
