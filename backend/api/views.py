@@ -1,17 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import FileResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse
 from django.utils import timezone
-import io
 
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import View
 
 from djoser.views import UserViewSet as DjoserUserViewSet
 
@@ -131,7 +129,7 @@ class UserViewSet(DjoserUserViewSet):
         subscription = Subscription.objects.filter(user=user, author=author).first()
         if not subscription:
             return Response(
-                {'errors': f'Вы не подписаны на этого пользователя.'},
+                {'errors': 'Вы не подписаны'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         subscription.delete()

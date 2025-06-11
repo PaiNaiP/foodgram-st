@@ -8,4 +8,4 @@ urlpatterns = [
         recipe_short_link_redirect,
         name='recipe-short-link'
     ),
-] 
+]

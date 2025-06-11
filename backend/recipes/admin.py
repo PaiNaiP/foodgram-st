@@ -70,7 +70,7 @@ class CookingTimeFilter(admin.SimpleListFilter):
         if not times:
             self._q1, self._q3 = None, None
             return self._q1, self._q3
-        
+
         quantiles = np.percentile(times, [33, 67])
         self._q1 = int(quantiles[0])
         self._q3 = int(quantiles[1])
@@ -81,7 +81,7 @@ class CookingTimeFilter(admin.SimpleListFilter):
 
         if q1 is None or q3 is None:
             return []
-        
+
         return (
             ('fast', f'Быстрые (до {q1} мин)'),
             ('medium', f'Средние ({q1}-{q3} мин)'),
