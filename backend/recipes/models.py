@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
-from .validators import validate_username_chars
+from .validators import validate_username
 
 
 class User(AbstractUser):
@@ -10,16 +10,19 @@ class User(AbstractUser):
     а также полями для подписки и аватара.
     """
     username = models.CharField(
-        "Уникальный никнейм пользователя",
+        "Никнейм",
         max_length=150,
         unique=True,
-        validators=[validate_username_chars],
-        help_text="Обязательное поле. Только буквы, цифры и @/./+/-/_.",
+        validators=[validate_username],
+        help_text=(
+            "Обязательное поле. Не более 150 символов. "
+            "Разрешены: буквы, цифры и символы @ . + - _"
+        ),
     )
     email = models.EmailField(
-        "Email",
+        "Адрес электронной почты",
+        max_length=254,
         unique=True,
-        max_length=254
     )
     first_name = models.CharField("Имя", max_length=150)
     last_name = models.CharField("Фамилия", max_length=150)
@@ -148,8 +151,8 @@ class Favorite(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorited',
-        verbose_name='Рецепт'
+        verbose_name='Рецепт',
+        related_name='favorites',
     )
 
     class Meta:

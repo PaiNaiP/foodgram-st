@@ -1,15 +1,15 @@
 import re
-from django.core.exceptions import ValidationError
+from rest_framework import serializers
 
 
-def validate_username_chars(value):
-    """
-    Проверяет, что имя пользователя содержит только разрешённые символы.
-    Разрешены: буквы, цифры и символы @ . + - _
-    """
-    invalid_chars = sorted(list(set(re.findall(r'[^\w.@+-]', value))))
-    if invalid_chars:
-        raise ValidationError(
-            'Имя пользователя содержит недопустимые символы: '
-            f'{" ".join(invalid_chars)}'
+def validate_username(value):
+    if value.lower() == 'me':
+        raise serializers.ValidationError(
+            'Использовать имя "me" в качестве username запрещено.'
         )
+    invalid_chars = set(re.findall(r'[^\w.@+-]', value))
+    if invalid_chars:
+        raise serializers.ValidationError(
+            f'Недопустимые символы в имени пользователя: {"".join(invalid_chars)}'
+        )
+    return value

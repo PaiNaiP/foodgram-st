@@ -47,11 +47,11 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
-    amount = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RecipeIngredient
         fields = ['id', 'name', 'measurement_unit', 'amount']
+        read_only_fields = fields
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -71,6 +71,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time', 'ingredients',
             'is_favorited', 'is_in_shopping_cart'
         ]
+        read_only_fields = fields
 
     def get_is_favorited(self, recipe):
         """Возвращает флаг добавления рецепта в избранное."""
@@ -93,7 +94,6 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для краткого представления рецепта."""
-    image = Base64ImageField(required=False, read_only=True)
 
     class Meta:
         model = Recipe
@@ -140,12 +140,16 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
         fields = ('id', 'amount')
 
 
-class RecipeCreateSerializer(serializers.ModelSerializer):
+class RecipeWriteSerializer(serializers.ModelSerializer):
     """Сериализатор для создания и обновления рецептов (только запись)."""
     ingredients = RecipeIngredientCreateSerializer(
         many=True, source='ingredient_amounts'
     )
     image = Base64ImageField()
+    cooking_time = serializers.IntegerField(
+        min_value=1,
+        error_messages={'min_value': 'Время приготовления должно быть не менее 1 минуты.'}
+    )
 
     class Meta:
         model = Recipe
@@ -186,10 +190,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        ingredients_data = validated_data.pop('ingredient_amounts', None)
-        if ingredients_data is not None:
-            instance.ingredients.clear()
-            self._create_ingredients(instance, ingredients_data)
+        ingredients_data = validated_data.pop('ingredient_amounts')
+        instance.ingredients.clear()
+        self._create_ingredients(instance, ingredients_data)
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
@@ -206,3 +209,17 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('avatar',)
+
+
+class IngredientInRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для ингредиентов в рецепте."""
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
+
+    class Meta:
+        model = RecipeIngredient
+        fields = ['id', 'name', 'measurement_unit', 'amount']
+        read_only_fields = fields

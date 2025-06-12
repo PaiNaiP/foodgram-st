@@ -17,7 +17,7 @@ class RecipeFilter(filters.FilterSet):
     def filter_favorited(self, queryset, name, value):
         user = self.request.user
         if value and user.is_authenticated:
-            return queryset.filter(favorited__user=user)
+            return queryset.filter(favorites__user=user)
         # Если пользователь анонимный, но запросил избранное - вернуть пустой список
         if value and not user.is_authenticated:
             return queryset.none()

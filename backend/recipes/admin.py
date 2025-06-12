@@ -14,6 +14,9 @@ class ExistenceFilter(admin.SimpleListFilter):
             return queryset.filter(**{f'{self.lookup_field}__isnull': True})
         return queryset
 
+    def lookups(self, request, model_admin):
+        return self.LOOKUPS
+
 
 class HasRecipesFilter(ExistenceFilter):
     title = 'Наличие рецептов'
@@ -23,9 +26,6 @@ class HasRecipesFilter(ExistenceFilter):
         ('yes', 'Есть рецепты'),
         ('no', 'Нет рецептов'),
     )
-
-    def lookups(self, request, model_admin):
-        return self.LOOKUPS
 
 
 class HasSubscriptionsFilter(ExistenceFilter):
@@ -37,9 +37,6 @@ class HasSubscriptionsFilter(ExistenceFilter):
         ('no', 'Нет подписок'),
     )
 
-    def lookups(self, request, model_admin):
-        return self.LOOKUPS
-
 
 class HasSubscribersFilter(ExistenceFilter):
     title = 'Наличие подписчиков'
@@ -49,9 +46,6 @@ class HasSubscribersFilter(ExistenceFilter):
         ('yes', 'Есть подписчики'),
         ('no', 'Нет подписчиков'),
     )
-
-    def lookups(self, request, model_admin):
-        return self.LOOKUPS
 
 
 class CookingTimeFilter(admin.SimpleListFilter):
@@ -67,9 +61,6 @@ class CookingTimeFilter(admin.SimpleListFilter):
             return self._q1, self._q3
 
         times = list(Recipe.objects.values_list('cooking_time', flat=True))
-        if not times:
-            self._q1, self._q3 = None, None
-            return self._q1, self._q3
 
         quantiles = np.percentile(times, [33, 67])
         self._q1 = int(quantiles[0])
@@ -91,9 +82,6 @@ class CookingTimeFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         q1, q3 = self._get_thresholds()
 
-        if self.value() is None or q1 is None or q3 is None:
-            return queryset
-
         if self.value() == 'fast':
             return queryset.filter(cooking_time__lte=q1)
         if self.value() == 'medium':
@@ -111,9 +99,6 @@ class IsInRecipeFilter(ExistenceFilter):
         ('yes', 'Есть в рецептах'),
         ('no', 'Нет в рецептах'),
     )
-
-    def lookups(self, request, model_admin):
-        return self.LOOKUPS
 
 
 @admin.register(User)

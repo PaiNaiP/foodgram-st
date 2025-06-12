@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
                 ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('username', models.CharField(help_text='Обязательное поле. Только буквы, цифры и @/./+/-/_.', max_length=150, unique=True, validators=[recipes.validators.validate_username_chars], verbose_name='Уникальный никнейм пользователя')),
+                ('username', models.CharField(help_text='Обязательное поле. Только буквы, цифры и @/./+/-/_.', max_length=150, unique=True, validators=[recipes.validators.validate_username], verbose_name='Уникальный никнейм пользователя')),
                 ('email', models.EmailField(max_length=254, unique=True, verbose_name='Email')),
                 ('first_name', models.CharField(max_length=150, verbose_name='Имя')),
                 ('last_name', models.CharField(max_length=150, verbose_name='Фамилия')),
