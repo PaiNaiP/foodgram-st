@@ -8,7 +8,6 @@ class Command(BaseCommand):
     help = 'Загружает ингредиенты из JSON файла в базу данных'
 
     def handle(self, *args, **options):
-        # В Docker-контейнере BASE_DIR это /app, а data копируется в /app/data
         file_path = settings.BASE_DIR / 'data' / 'ingredients.json'
         self.stdout.write(self.style.SUCCESS(f'Загрузка данных из {file_path}'))
 
