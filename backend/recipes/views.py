@@ -10,5 +10,4 @@ def recipe_short_link_redirect(request, recipe_id):
     """Осуществляет редирект с короткой ссылки на полную страницу рецепта."""
     if not Recipe.objects.filter(id=recipe_id).exists():
         raise Http404()
-    # Я предполагаю, что фронтенд обрабатывает /recipes/<id>/
-    return redirect(f'/recipes/{recipe_id}/', permanent=True) 
+    return redirect(f'/recipes/{recipe_id}/', permanent=True)
