@@ -20,8 +20,8 @@ services:
   backend:
     container_name: foodgram-back
     build:
-      context: ..
-      dockerfile: backend/Dockerfile
+      context: ../backend
+
     command: gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ../backend/:/app/
